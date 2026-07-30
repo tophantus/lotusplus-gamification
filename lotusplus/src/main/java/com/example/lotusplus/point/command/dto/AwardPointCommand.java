@@ -1,0 +1,21 @@
+package com.example.lotusplus.point.command.dto;
+
+import com.example.lotusplus.point.enums.PointType;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.util.UUID;
+
+@Getter
+@Builder
+public class AwardPointCommand {
+
+    private UUID userId;
+
+    private Long point;
+
+    private PointType type;
+
+    private String description;
+
+}
