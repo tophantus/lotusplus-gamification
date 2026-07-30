@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-reward-config
+      author: tu
+
+      changes:
+        - createTable:
+            tableName: reward_config
+            columns:
+              - column:
+                  name: day_no
+                  type: INTEGER
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_reward_config
+                    nullable: false
+
+              - column:
+                  name: reward
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+        - loadData:
+            file: db/data/reward-config.csv
+            tableName: reward_config
+            separator: ","
