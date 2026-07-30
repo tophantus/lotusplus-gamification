@@ -58,7 +58,14 @@ public enum ErrorCode {
             "SYSTEM_001",
             "Internal server error",
             HttpStatus.INTERNAL_SERVER_ERROR
+    ),
+
+    REQUEST_IN_PROGRESS(
+            "SYSTEM_002",
+            "Request is being processed",
+            HttpStatus.CONFLICT
     );
+
 
 
     private final String code;

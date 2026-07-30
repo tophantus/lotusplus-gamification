@@ -27,6 +27,12 @@ spring:
       port: 6379
       timeout: 3000ms
 
+  cache:
+    type: redis
+
+redisson:
+  address: redis://localhost:6379
+
 server:
   port: 8080
 
