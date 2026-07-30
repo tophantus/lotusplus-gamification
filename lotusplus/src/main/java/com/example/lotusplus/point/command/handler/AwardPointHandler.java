@@ -30,12 +30,18 @@ public class AwardPointHandler {
                 .orElseThrow(() ->
                         new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        user.setLotusPoint(user.getLotusPoint() + command.getPoint());
+        long newBalance =
+                user.getLotusPoint() + command.getPoint();
+
+        user.setLotusPoint(newBalance);
 
         PointHistory history = PointHistory.builder()
                 .user(user)
                 .point(command.getPoint())
+                .balanceAfter(newBalance)
                 .type(command.getType())
+                .referenceType(command.getReferenceType())
+                .referenceId(command.getReferenceId())
                 .description(command.getDescription())
                 .build();
 

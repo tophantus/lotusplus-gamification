@@ -16,6 +16,10 @@ public class AwardPointCommand {
 
     private PointType type;
 
+    private String referenceType;
+    
+    private UUID referenceId;
+
     private String description;
 
 }
