@@ -12,7 +12,7 @@ public class AwardPointCommand {
 
     private UUID userId;
 
-    private Long point;
+    private Integer point;
 
     private PointType type;
 
