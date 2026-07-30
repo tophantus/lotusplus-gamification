@@ -65,17 +65,24 @@ public class GetCheckInStatusHandler {
         Map<Integer, Integer> rewardMap =
                 rewardService.getRewardMap();
 
+        int currentDay = checkedInToday
+                ? (int) Math.min(checkedCount, 7)
+                : (int) Math.min(checkedCount + 1, 7);
+
         List<CheckInDayStatusResponse> responses =
                 buildDayStatuses(
                         histories,
                         rewardMap,
-                        checkedCount
+                        checkedCount,
+                        currentDay
                 );
+
+
 
         return CheckInStatusResponse.builder()
                 .checkedInToday(checkedInToday)
                 .canCheckIn(canCheckInNow() && !checkedInToday)
-                .currentDay((int) Math.min(checkedCount + 1, 7))
+                .currentDay(currentDay)
                 .days(responses)
                 .build();
     }
@@ -83,12 +90,11 @@ public class GetCheckInStatusHandler {
     private List<CheckInDayStatusResponse> buildDayStatuses(
             List<CheckIn> histories,
             Map<Integer, Integer> rewardMap,
-            long checkedCount
+            long checkedCount,
+            int currentDay
     ) {
 
         List<CheckInDayStatusResponse> result = new ArrayList<>();
-
-        int currentDay = (int) checkedCount + 1;
 
         for (int day = 1; day <= 7; day++) {
 

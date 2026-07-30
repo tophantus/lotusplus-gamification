@@ -86,6 +86,8 @@ public class CheckInCommandHandler {
                         .userId(userId)
                         .point(reward)
                         .type(PointType.CHECK_IN)
+                        .referenceId(checkIn.getId())
+                        .referenceType("CHECK_IN")
                         .description("Daily check-in")
                         .build()
         );
