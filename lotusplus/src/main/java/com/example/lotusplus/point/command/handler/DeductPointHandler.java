@@ -40,8 +40,8 @@ public class DeductPointHandler {
 
         PointHistory history = PointHistory.builder()
                 .user(user)
-                .point(-request.getPoint())
-                .type(PointType.MANUAL_DEDUCTION)
+                .point(request.getPoint())
+                .type(PointType.DEDUCTION)
                 .description(request.getDescription())
                 .build();
 

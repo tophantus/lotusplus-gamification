@@ -16,7 +16,7 @@ public class DeductPointRequest {
 
     @NotNull
     @Min(1)
-    private Long point;
+    private Integer point;
 
     private String description;
 
