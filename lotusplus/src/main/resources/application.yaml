@@ -38,7 +38,7 @@ server:
 
 checkin:
   morning:
-    start: "09:00"
+    start: "00:00"
     end: "11:00"
   evening:
     start: "19:00"
