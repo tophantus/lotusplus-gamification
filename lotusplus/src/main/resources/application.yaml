@@ -30,6 +30,14 @@ spring:
 server:
   port: 8080
 
+checkin:
+  morning:
+    start: "09:00"
+    end: "11:00"
+  evening:
+    start: "19:00"
+    end: "21:00"
+
 logging:
   level:
     org.hibernate.SQL: DEBUG

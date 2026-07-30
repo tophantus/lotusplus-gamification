@@ -2,7 +2,9 @@ package com.example.lotusplus.checkin.command.handler;
 
 import com.example.lotusplus.checkin.command.dto.CheckInResponse;
 import com.example.lotusplus.checkin.command.repository.CheckInCommandRepository;
+import com.example.lotusplus.checkin.config.CheckInProperties;
 import com.example.lotusplus.checkin.entity.CheckIn;
+import com.example.lotusplus.checkin.query.repository.CheckInQueryRepository;
 import com.example.lotusplus.common.exception.BusinessException;
 import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.point.command.dto.AwardPointCommand;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -23,17 +26,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CheckInHandler {
 
-    private static final LocalTime MORNING_START = LocalTime.of(9, 0);
-    private static final LocalTime MORNING_END = LocalTime.of(11, 0);
-
-    private static final LocalTime EVENING_START = LocalTime.of(19, 0);
-    private static final LocalTime EVENING_END = LocalTime.of(21, 0);
+    private final CheckInProperties checkInProperties;
 
     private final UserCommandRepository userRepository;
 
     private final CheckInCommandRepository checkInRepository;
 
-    private final com.example.lotusplus.checkin.query.repository.CheckInQueryRepository checkInQueryRepository;
+    private final CheckInQueryRepository checkInQueryRepository;
+
+    private final Clock clock;
 
     private final RewardService rewardService;
 
@@ -46,7 +47,7 @@ public class CheckInHandler {
                 .orElseThrow(() ->
                         new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
 
         if (checkInQueryRepository.existsByUserIdAndCheckinDate(userId, today)) {
             throw new BusinessException(ErrorCode.ALREADY_CHECKED_IN);
@@ -98,20 +99,18 @@ public class CheckInHandler {
 
     private void validateCheckInTime() {
 
-        LocalTime now = LocalTime.now();
+        LocalTime now = LocalTime.now(clock);
 
         boolean morning =
-                !now.isBefore(MORNING_START)
-                        && now.isBefore(MORNING_END);
+                !now.isBefore(checkInProperties.getMorning().getStart())
+                        && now.isBefore(checkInProperties.getMorning().getEnd());
 
         boolean evening =
-                !now.isBefore(EVENING_START)
-                        && now.isBefore(EVENING_END);
+                !now.isBefore(checkInProperties.getEvening().getStart())
+                        && now.isBefore(checkInProperties.getEvening().getEnd());
 
         if (!(morning || evening)) {
-            throw new BusinessException(
-                    ErrorCode.CHECKIN_NOT_AVAILABLE
-            );
+            throw new BusinessException(ErrorCode.CHECKIN_NOT_AVAILABLE);
         }
     }
 
