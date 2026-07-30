@@ -24,6 +24,12 @@ public enum ErrorCode {
             HttpStatus.CONFLICT
     ),
 
+    MAX_CHECKIN_REACHED(
+            "CHECKIN_003",
+            "Maximum monthly check-in reached",
+            HttpStatus.BAD_REQUEST
+    ),
+
     INVALID_POINT(
             "POINT_001",
             "Invalid point",
