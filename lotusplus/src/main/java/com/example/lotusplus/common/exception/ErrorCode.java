@@ -24,6 +24,24 @@ public enum ErrorCode {
             HttpStatus.CONFLICT
     ),
 
+    INVALID_POINT(
+            "POINT_001",
+            "Invalid point",
+            HttpStatus.BAD_REQUEST
+    ),
+
+    INSUFFICIENT_POINT(
+            "POINT_002",
+            "Insufficient Lotus+ points",
+            HttpStatus.BAD_REQUEST
+    ),
+
+    CONCURRENT_POINT_UPDATE(
+            "POINT_003",
+            "Point balance was modified by another request. Please try again.",
+            HttpStatus.CONFLICT
+    ),
+
     INTERNAL_ERROR(
             "SYSTEM_001",
             "Internal server error",
