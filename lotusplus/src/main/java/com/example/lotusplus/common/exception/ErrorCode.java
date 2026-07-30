@@ -42,6 +42,12 @@ public enum ErrorCode {
             HttpStatus.CONFLICT
     ),
 
+    REWARD_CONFIG_NOT_FOUND(
+            "REWARD_001",
+            "Reward configuration not found",
+            HttpStatus.INTERNAL_SERVER_ERROR
+    ),
+
     INTERNAL_ERROR(
             "SYSTEM_001",
             "Internal server error",
