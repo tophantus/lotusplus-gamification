@@ -55,6 +55,11 @@
 			<scope>compile</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
 		<!-- Source: https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->
 		<dependency>
 			<groupId>org.redisson</groupId>

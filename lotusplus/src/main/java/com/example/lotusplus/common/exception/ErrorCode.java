@@ -24,6 +24,12 @@ public enum ErrorCode {
             HttpStatus.CONFLICT
     ),
 
+    MAX_CHECKIN_REACHED(
+            "CHECKIN_003",
+            "Maximum monthly check-in reached",
+            HttpStatus.BAD_REQUEST
+    ),
+
     INVALID_POINT(
             "POINT_001",
             "Invalid point",
@@ -42,11 +48,24 @@ public enum ErrorCode {
             HttpStatus.CONFLICT
     ),
 
+    REWARD_CONFIG_NOT_FOUND(
+            "REWARD_001",
+            "Reward configuration not found",
+            HttpStatus.INTERNAL_SERVER_ERROR
+    ),
+
     INTERNAL_ERROR(
             "SYSTEM_001",
             "Internal server error",
             HttpStatus.INTERNAL_SERVER_ERROR
+    ),
+
+    REQUEST_IN_PROGRESS(
+            "SYSTEM_002",
+            "Request is being processed",
+            HttpStatus.CONFLICT
     );
+
 
 
     private final String code;
