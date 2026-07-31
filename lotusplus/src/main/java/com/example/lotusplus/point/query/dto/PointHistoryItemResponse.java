@@ -15,6 +15,8 @@ public class PointHistoryItemResponse {
 
     private Integer point;
 
+    private Long balanceAfter;
+
     private PointType type;
 
     private String description;
