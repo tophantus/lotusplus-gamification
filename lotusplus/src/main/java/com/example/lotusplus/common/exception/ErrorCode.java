@@ -6,6 +6,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    INVALID_REQUEST(
+            "COMMON_001",
+            "Invalid request",
+            HttpStatus.BAD_REQUEST
+    ),
+
     USER_NOT_FOUND(
             "USER_001",
             "User not found",

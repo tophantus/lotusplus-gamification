@@ -9,7 +9,7 @@ import com.example.lotusplus.checkin.query.repository.CheckInQueryRepository;
 import com.example.lotusplus.common.exception.BusinessException;
 import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.reward.service.RewardService;
-import com.example.lotusplus.user.query.repository.UserQueryRepository;
+import com.example.lotusplus.user.query.handler.ValidateUserHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class GetCheckInStatusHandler {
 
-    private final UserQueryRepository userRepository;
+    private final ValidateUserHandler validateUserHandler;
     private final CheckInQueryRepository checkInRepository;
     private final RewardService rewardService;
     private final Clock clock;
@@ -32,9 +32,7 @@ public class GetCheckInStatusHandler {
 
     public CheckInStatusResponse handle(UUID userId) {
 
-        if (!userRepository.existsById(userId)) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-        }
+        validateUserHandler.handle(userId);
 
         LocalDate today = LocalDate.now(clock);
 

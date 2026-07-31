@@ -6,8 +6,8 @@ import com.example.lotusplus.point.command.dto.DeductPointRequest;
 import com.example.lotusplus.point.command.repository.PointCommandRepository;
 import com.example.lotusplus.point.entity.PointHistory;
 import com.example.lotusplus.point.enums.PointType;
-import com.example.lotusplus.user.command.repository.UserCommandRepository;
-import com.example.lotusplus.user.entity.User;
+import com.example.lotusplus.user.command.dto.UpdateUserPointCommand;
+import com.example.lotusplus.user.command.handler.UpdateUserPointCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,33 +16,29 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DeductPointHandler {
 
-    private final UserCommandRepository userRepository;
+    private final UpdateUserPointCommandHandler updateUserPointHandler;
     private final PointCommandRepository pointCommandRepository;
 
     @Transactional
-    public void handle(DeductPointRequest request) {
+    public void handle(DeductPointRequest command) {
 
-        if (request.getPoint() <= 0) {
+        if (command.getPoint() <= 0) {
             throw new BusinessException(ErrorCode.INVALID_POINT);
         }
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() ->
-                        new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.getLotusPoint() < request.getPoint()) {
-            throw new BusinessException(ErrorCode.INSUFFICIENT_POINT);
-        }
-
-        user.setLotusPoint(
-                user.getLotusPoint() - request.getPoint()
+        Long newBalance = updateUserPointHandler.handle(
+                UpdateUserPointCommand.builder()
+                        .userId(command.getUserId())
+                        .amount(-command.getPoint())
+                        .build()
         );
 
         PointHistory history = PointHistory.builder()
-                .user(user)
-                .point(request.getPoint())
+                .userId(command.getUserId())
+                .point(command.getPoint())
+                .balanceAfter(newBalance)
                 .type(PointType.DEDUCTION)
-                .description(request.getDescription())
+                .description(command.getDescription())
                 .build();
 
         pointCommandRepository.save(history);

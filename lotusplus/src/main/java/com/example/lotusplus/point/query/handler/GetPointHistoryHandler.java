@@ -1,13 +1,11 @@
 package com.example.lotusplus.point.query.handler;
 
-import com.example.lotusplus.common.exception.BusinessException;
-import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.point.entity.PointHistory;
 import com.example.lotusplus.point.mapper.PointHistoryMapper;
 import com.example.lotusplus.point.query.dto.PointHistoryItemResponse;
 import com.example.lotusplus.point.query.dto.PointHistoryResponse;
 import com.example.lotusplus.point.query.repository.PointQueryRepository;
-import com.example.lotusplus.user.query.repository.UserQueryRepository;
+import com.example.lotusplus.user.query.handler.ValidateUserHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GetPointHistoryHandler {
 
-    private final UserQueryRepository userRepository;
+    private final ValidateUserHandler validateUserHandler;
 
     private final PointQueryRepository pointRepository;
 
@@ -33,9 +31,7 @@ public class GetPointHistoryHandler {
             int size
     ) {
 
-        if (!userRepository.existsById(userId)) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-        }
+        validateUserHandler.handle(userId);
 
         Pageable pageable = PageRequest.of(page, size);
 
