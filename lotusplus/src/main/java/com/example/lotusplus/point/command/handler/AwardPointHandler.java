@@ -26,7 +26,7 @@ public class AwardPointHandler {
             cacheNames = CacheNames.USER_PROFILE,
             key = "#command.userId"
     )
-    public void handle(AwardPointCommand command) {
+    public Long handle(AwardPointCommand command) {
 
         if (command.getPoint() <= 0) {
             throw new BusinessException(ErrorCode.INVALID_POINT);
@@ -50,6 +50,8 @@ public class AwardPointHandler {
                 .build();
 
         pointCommandRepository.save(history);
+
+        return newBalance;
     }
 
 }

@@ -12,8 +12,7 @@ import com.example.lotusplus.point.command.dto.AwardPointCommand;
 import com.example.lotusplus.point.command.handler.AwardPointHandler;
 import com.example.lotusplus.point.enums.PointType;
 import com.example.lotusplus.reward.service.RewardService;
-import com.example.lotusplus.user.command.repository.UserCommandRepository;
-import com.example.lotusplus.user.entity.User;
+import com.example.lotusplus.user.query.handler.ValidateUserHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -28,18 +27,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CheckInCommandHandler {
 
+    private static final int MAX_CHECKIN_DAYS = 7;
+
     private final CheckInProperties checkInProperties;
-
-    private final UserCommandRepository userRepository;
-
+    private final ValidateUserHandler validateUserHandler;
     private final CheckInCommandRepository checkInRepository;
-
     private final CheckInQueryRepository checkInQueryRepository;
-
     private final Clock clock;
-
     private final RewardService rewardService;
-
     private final AwardPointHandler awardPointHandler;
 
     @Transactional
@@ -49,59 +44,95 @@ public class CheckInCommandHandler {
     )
     public CheckInResponse handle(UUID userId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new BusinessException(ErrorCode.USER_NOT_FOUND));
+        validateUserHandler.handle(userId);
 
         LocalDate today = LocalDate.now(clock);
 
-        if (checkInQueryRepository.existsByUserIdAndCheckinDate(userId, today)) {
-            throw new BusinessException(ErrorCode.ALREADY_CHECKED_IN);
-        }
-
+        validateAlreadyChecked(userId, today);
         validateCheckInTime();
 
-        LocalDate firstDay = today.withDayOfMonth(1);
-        LocalDate lastDay = today.withDayOfMonth(today.lengthOfMonth());
+        long checkedDays = getCheckedDays(userId, today);
+        validateCheckInLimit(checkedDays);
 
-        long checkedDays = checkInQueryRepository
-                .countByUserIdAndCheckinDateBetween(
-                        userId,
-                        firstDay,
-                        lastDay
-                );
-
-        if (checkedDays >= 7) {
-            throw new BusinessException(ErrorCode.MAX_CHECKIN_REACHED);
-        }
 
         int currentDay = (int) checkedDays + 1;
-
         Integer reward = rewardService.getRewardByDay(currentDay);
 
-        CheckIn checkIn = CheckIn.builder()
-                .user(user)
-                .checkinDate(today)
-                .reward(reward)
-                .build();
+        CheckIn checkIn = saveCheckIn(userId, today, reward);
 
-        checkInRepository.save(checkIn);
-
-        awardPointHandler.handle(
-                AwardPointCommand.builder()
-                        .userId(userId)
-                        .point(reward)
-                        .type(PointType.CHECK_IN)
-                        .referenceId(checkIn.getId())
-                        .referenceType("CHECK_IN")
-                        .description("Daily check-in")
-                        .build()
+        Long totalPoint = awardPointHandler.handle(
+                buildAwardPointCommand(
+                        userId,
+                        reward,
+                        checkIn.getId()
+                )
         );
 
         return CheckInResponse.builder()
                 .day(currentDay)
                 .reward(reward)
-                .totalPoint(user.getLotusPoint().intValue())
+                .totalPoint(totalPoint)
+                .build();
+    }
+
+    private void validateAlreadyChecked(
+            UUID userId,
+            LocalDate today
+    ) {
+
+        if (checkInQueryRepository.existsByUserIdAndCheckinDate(userId, today)) {
+            throw new BusinessException(ErrorCode.ALREADY_CHECKED_IN);
+        }
+    }
+
+
+    private long getCheckedDays(
+            UUID userId,
+            LocalDate today
+    ) {
+
+        return checkInQueryRepository.countByUserIdAndCheckinDateBetween(
+                userId,
+                today.withDayOfMonth(1),
+                today.withDayOfMonth(today.lengthOfMonth())
+        );
+    }
+
+    private void validateCheckInLimit(long checkedDays) {
+
+        if (checkedDays >= MAX_CHECKIN_DAYS) {
+            throw new BusinessException(ErrorCode.MAX_CHECKIN_REACHED);
+        }
+    }
+
+    private CheckIn saveCheckIn(
+            UUID userId,
+            LocalDate today,
+            Integer reward
+    ) {
+
+        CheckIn checkIn = CheckIn.builder()
+                .userId(userId)
+                .checkinDate(today)
+                .reward(reward)
+                .build();
+
+        return checkInRepository.save(checkIn);
+    }
+
+    private AwardPointCommand buildAwardPointCommand(
+            UUID userId,
+            Integer reward,
+            UUID checkInId
+    ) {
+
+        return AwardPointCommand.builder()
+                .userId(userId)
+                .point(reward)
+                .type(PointType.CHECK_IN)
+                .referenceType("CHECK_IN")
+                .referenceId(checkInId)
+                .description("Daily check-in")
                 .build();
     }
 
