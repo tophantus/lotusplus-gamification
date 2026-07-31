@@ -21,12 +21,40 @@ public class RewardService {
     private final RewardQueryRepository rewardRepository;
 
     @Transactional(readOnly = true)
+    public Integer getRewardByDay(Integer day) {
+
+        return getRewardMap()
+                .getOrDefault(
+                        day,
+                        throwRewardConfigNotFound()
+                );
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, Integer> getRewardMap() {
+
+        return getRewardConfigs()
+                .stream()
+                .collect(Collectors.toMap(
+                        RewardConfig::getDayNo,
+                        RewardConfig::getReward
+                ));
+    }
+
     @Cacheable(
             cacheNames = CacheNames.REWARD_CONFIG,
             sync = true
     )
-    public List<RewardConfig> getRewardConfigs() {
+    @Transactional(readOnly = true)
+    protected List<RewardConfig> getRewardConfigs() {
 
         return rewardRepository.findAll();
+    }
+
+    private Integer throwRewardConfigNotFound() {
+
+        throw new BusinessException(
+                ErrorCode.REWARD_CONFIG_NOT_FOUND
+        );
     }
 }
