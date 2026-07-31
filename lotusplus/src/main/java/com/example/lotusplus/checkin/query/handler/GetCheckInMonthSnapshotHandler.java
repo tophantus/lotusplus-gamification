@@ -4,8 +4,10 @@ import com.example.lotusplus.checkin.enums.CheckInStatus;
 import com.example.lotusplus.checkin.query.dto.CheckInDayStatusResponse;
 import com.example.lotusplus.checkin.query.dto.CheckInMonthSnapshot;
 import com.example.lotusplus.checkin.query.repository.CheckInQueryRepository;
+import com.example.lotusplus.common.cache.CacheNames;
 import com.example.lotusplus.reward.service.RewardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,10 @@ public class GetCheckInMonthSnapshotHandler {
     private final RewardService rewardService;
     private final Clock clock;
 
+    @Cacheable(
+            cacheNames = CacheNames.CHECKIN_MONTH,
+            key = "#userId"
+    )
     public CheckInMonthSnapshot handle(UUID userId) {
 
         LocalDate today = LocalDate.now(clock);
