@@ -1,10 +1,12 @@
 package com.example.lotusplus.reward.service;
 
+import com.example.lotusplus.common.cache.CacheNames;
 import com.example.lotusplus.common.exception.BusinessException;
 import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.reward.entity.RewardConfig;
 import com.example.lotusplus.reward.query.repository.RewardQueryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,15 +22,19 @@ public class RewardService {
     @Transactional(readOnly = true)
     public Integer getRewardByDay(Integer day) {
 
-        return rewardRepository.findById(day)
-                .map(RewardConfig::getReward)
-                .orElseThrow(() ->
-                        new BusinessException(
-                                ErrorCode.REWARD_CONFIG_NOT_FOUND
-                        ));
+        Integer reward = getRewardMap().get(day);
+
+        if (reward == null) {
+            throw new BusinessException(
+                    ErrorCode.REWARD_CONFIG_NOT_FOUND
+            );
+        }
+
+        return reward;
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = CacheNames.REWARD_CONFIG)
     public Map<Integer, Integer> getRewardMap() {
 
         return rewardRepository.findAll()

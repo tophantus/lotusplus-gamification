@@ -36,6 +36,17 @@ services:
       timeout: 5s
       retries: 5
 
+  redisinsight:
+    container_name: lotusplus-redisinsight
+    image: redis/redisinsight:latest
+    ports:
+      - "5540:5540"
+    networks:
+      - lotusplus-network
+    volumes:
+      - redisinsight_data:/db
+    restart: unless-stopped
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: lotusplus-pgadmin
@@ -58,6 +69,7 @@ volumes:
   postgres_data:
   redis_data:
   pgadmin_data:
+  redisinsight_data:
 
 networks:
   lotusplus-network:

@@ -5,6 +5,7 @@ import com.example.lotusplus.checkin.command.repository.CheckInCommandRepository
 import com.example.lotusplus.checkin.config.CheckInProperties;
 import com.example.lotusplus.checkin.entity.CheckIn;
 import com.example.lotusplus.checkin.query.repository.CheckInQueryRepository;
+import com.example.lotusplus.common.cache.CacheNames;
 import com.example.lotusplus.common.exception.BusinessException;
 import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.point.command.dto.AwardPointCommand;
@@ -14,6 +15,7 @@ import com.example.lotusplus.reward.service.RewardService;
 import com.example.lotusplus.user.command.repository.UserCommandRepository;
 import com.example.lotusplus.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,10 @@ public class CheckInCommandHandler {
     private final AwardPointHandler awardPointHandler;
 
     @Transactional
+    @CacheEvict(
+            cacheNames = CacheNames.CHECKIN_MONTH,
+            key = "#userId"
+    )
     public CheckInResponse handle(UUID userId) {
 
         User user = userRepository.findById(userId)

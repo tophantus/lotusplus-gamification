@@ -1,5 +1,6 @@
 package com.example.lotusplus.point.command.handler;
 
+import com.example.lotusplus.common.cache.CacheNames;
 import com.example.lotusplus.common.exception.BusinessException;
 import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.point.command.dto.AwardPointCommand;
@@ -8,6 +9,7 @@ import com.example.lotusplus.point.entity.PointHistory;
 import com.example.lotusplus.user.command.dto.UpdateUserPointCommand;
 import com.example.lotusplus.user.command.handler.UpdateUserPointCommandHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,10 @@ public class AwardPointHandler {
     private final PointCommandRepository pointCommandRepository;
 
     @Transactional
+    @CacheEvict(
+            cacheNames = CacheNames.USER_PROFILE,
+            key = "#command.userId"
+    )
     public void handle(AwardPointCommand command) {
 
         if (command.getPoint() <= 0) {

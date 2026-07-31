@@ -1,14 +1,11 @@
 package com.example.lotusplus.checkin.query.handler;
 
 import com.example.lotusplus.checkin.config.CheckInProperties;
-import com.example.lotusplus.checkin.entity.CheckIn;
 import com.example.lotusplus.checkin.enums.CheckInStatus;
 import com.example.lotusplus.checkin.query.dto.CheckInDayStatusResponse;
+import com.example.lotusplus.checkin.query.dto.CheckInMonthSnapshot;
 import com.example.lotusplus.checkin.query.dto.CheckInStatusResponse;
 import com.example.lotusplus.checkin.query.repository.CheckInQueryRepository;
-import com.example.lotusplus.common.exception.BusinessException;
-import com.example.lotusplus.common.exception.ErrorCode;
-import com.example.lotusplus.reward.service.RewardService;
 import com.example.lotusplus.user.query.handler.ValidateUserHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,9 +23,10 @@ public class GetCheckInStatusHandler {
 
     private final ValidateUserHandler validateUserHandler;
     private final CheckInQueryRepository checkInRepository;
-    private final RewardService rewardService;
     private final Clock clock;
     private final CheckInProperties properties;
+
+    private final GetCheckInMonthSnapshotHandler snapshotHandler;
 
     public CheckInStatusResponse handle(UUID userId) {
 
@@ -36,45 +34,39 @@ public class GetCheckInStatusHandler {
 
         LocalDate today = LocalDate.now(clock);
 
-        LocalDate firstDay = today.withDayOfMonth(1);
-        LocalDate lastDay = today.withDayOfMonth(today.lengthOfMonth());
-
         boolean checkedInToday =
                 checkInRepository.existsByUserIdAndCheckinDate(
                         userId,
                         today
                 );
 
-        long checkedCount =
-                checkInRepository.countByUserIdAndCheckinDateBetween(
-                        userId,
-                        firstDay,
-                        lastDay
-                );
+        CheckInMonthSnapshot snapshot =
+                snapshotHandler.handle(userId);
 
-        List<CheckIn> histories = true
-                ? List.of()
-                : checkInRepository.findByUserIdAndCheckinDateBetweenOrderByCheckinDateAsc(
-                        userId,
-                        firstDay,
-                        lastDay
-                );
-
-        Map<Integer, Integer> rewardMap =
-                rewardService.getRewardMap();
-
-        int currentDay = checkedInToday
-                ? (int) Math.min(checkedCount, 7)
-                : (int) Math.min(checkedCount + 1, 7);
+        int currentDay =
+                checkedInToday
+                        ? (int) Math.min(snapshot.getCheckedCount(), 7)
+                        : (int) Math.min(snapshot.getCheckedCount() + 1, 7);
 
         List<CheckInDayStatusResponse> responses =
-                buildDayStatuses(
-                        histories,
-                        rewardMap,
-                        checkedCount,
-                        currentDay
-                );
+                snapshot.getDays()
+                        .stream()
+                        .map(day -> {
 
+                            if (!checkedInToday
+                                    && day.getDay() == currentDay
+                                    && currentDay <= 7) {
+
+                                return CheckInDayStatusResponse.builder()
+                                        .day(day.getDay())
+                                        .reward(day.getReward())
+                                        .status(CheckInStatus.AVAILABLE)
+                                        .build();
+                            }
+
+                            return day;
+                        })
+                        .toList();
 
 
         return CheckInStatusResponse.builder()
@@ -83,39 +75,6 @@ public class GetCheckInStatusHandler {
                 .currentDay(currentDay)
                 .days(responses)
                 .build();
-    }
-
-    private List<CheckInDayStatusResponse> buildDayStatuses(
-            List<CheckIn> histories,
-            Map<Integer, Integer> rewardMap,
-            long checkedCount,
-            int currentDay
-    ) {
-
-        List<CheckInDayStatusResponse> result = new ArrayList<>();
-
-        for (int day = 1; day <= 7; day++) {
-
-            CheckInStatus status;
-
-            if (day <= checkedCount) {
-                status = CheckInStatus.CHECKED;
-            } else if (day == currentDay && checkedCount < 7) {
-                status = CheckInStatus.AVAILABLE;
-            } else {
-                status = CheckInStatus.LOCKED;
-            }
-
-            result.add(
-                    CheckInDayStatusResponse.builder()
-                            .day(day)
-                            .reward(rewardMap.get(day))
-                            .status(status)
-                            .build()
-            );
-        }
-
-        return result;
     }
 
     private boolean canCheckInNow() {
