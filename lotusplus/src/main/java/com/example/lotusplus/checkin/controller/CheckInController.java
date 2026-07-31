@@ -1,7 +1,7 @@
 package com.example.lotusplus.checkin.controller;
 
 import com.example.lotusplus.checkin.command.dto.CheckInResponse;
-import com.example.lotusplus.checkin.command.handler.CheckInHandler;
+import com.example.lotusplus.checkin.command.handler.CheckInCommandHandler;
 import com.example.lotusplus.checkin.query.dto.CheckInStatusResponse;
 import com.example.lotusplus.checkin.query.handler.GetCheckInStatusHandler;
 import com.example.lotusplus.common.response.ApiResponse;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CheckInController {
 
-    private final CheckInHandler checkInHandler;
+    private final CheckInCommandHandler checkInHandler;
 
     private final GetCheckInStatusHandler statusHandler;
 

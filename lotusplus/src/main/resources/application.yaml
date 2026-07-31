@@ -46,5 +46,6 @@ checkin:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    com.example.lotusplus.common.lock: DEBUG
+    org.hibernate.SQL: INFO
     org.hibernate.orm.jdbc.bind: TRACE

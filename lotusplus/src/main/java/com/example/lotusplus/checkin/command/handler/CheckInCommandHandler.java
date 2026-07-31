@@ -8,6 +8,7 @@ import com.example.lotusplus.checkin.query.repository.CheckInQueryRepository;
 import com.example.lotusplus.common.cache.CacheNames;
 import com.example.lotusplus.common.exception.BusinessException;
 import com.example.lotusplus.common.exception.ErrorCode;
+import com.example.lotusplus.common.lock.DistributedLock;
 import com.example.lotusplus.point.command.dto.AwardPointCommand;
 import com.example.lotusplus.point.command.handler.AwardPointHandler;
 import com.example.lotusplus.point.enums.PointType;
@@ -37,6 +38,10 @@ public class CheckInCommandHandler {
     private final RewardService rewardService;
     private final AwardPointHandler awardPointHandler;
 
+    @DistributedLock(
+            prefix = "lock:checkin:user:",
+            key = "#userId"
+    )
     @Transactional
     @CacheEvict(
             cacheNames = CacheNames.CHECKIN_MONTH,
