@@ -1,9 +1,9 @@
 package com.example.lotusplus.point.query.handler;
 
-import com.example.lotusplus.point.entity.PointHistory;
 import com.example.lotusplus.point.mapper.PointHistoryMapper;
 import com.example.lotusplus.point.query.dto.PointHistoryItemResponse;
 import com.example.lotusplus.point.query.dto.PointHistoryResponse;
+import com.example.lotusplus.point.query.projection.PointHistoryProjection;
 import com.example.lotusplus.point.query.repository.PointQueryRepository;
 import com.example.lotusplus.user.query.handler.ValidateUserHandler;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class GetPointHistoryHandler {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<PointHistory> historyPage =
+        Page<PointHistoryProjection> historyPage =
                 pointRepository.findByUserIdOrderByCreatedAtDesc(
                         userId,
                         pageable
