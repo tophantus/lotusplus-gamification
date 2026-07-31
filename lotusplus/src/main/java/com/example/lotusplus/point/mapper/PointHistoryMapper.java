@@ -13,6 +13,7 @@ public final class PointHistoryMapper {
         return PointHistoryItemResponse.builder()
                 .id(history.getId())
                 .point(history.getPoint())
+                .balanceAfter(history.getBalanceAfter())
                 .type(history.getType())
                 .description(history.getDescription())
                 .createdAt(history.getCreatedAt())
