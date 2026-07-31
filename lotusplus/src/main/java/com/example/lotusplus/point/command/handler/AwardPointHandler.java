@@ -5,7 +5,8 @@ import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.point.command.dto.AwardPointCommand;
 import com.example.lotusplus.point.command.repository.PointCommandRepository;
 import com.example.lotusplus.point.entity.PointHistory;
-import com.example.lotusplus.user.command.repository.UserCommandRepository;
+import com.example.lotusplus.user.command.dto.UpdateUserPointCommand;
+import com.example.lotusplus.user.command.handler.UpdateUserPointCommandHandler;
 import com.example.lotusplus.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AwardPointHandler {
 
-    private final UserCommandRepository userRepository;
+    private final UpdateUserPointCommandHandler updateUserPointHandler;
 
     private final PointCommandRepository pointCommandRepository;
 
@@ -26,17 +27,17 @@ public class AwardPointHandler {
             throw new BusinessException(ErrorCode.INVALID_POINT);
         }
 
-        User user = userRepository.findById(command.getUserId())
-                .orElseThrow(() ->
-                        new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        long newBalance =
-                user.getLotusPoint() + command.getPoint();
-
-        user.setLotusPoint(newBalance);
+        Long newBalance = updateUserPointHandler.handle(
+                UpdateUserPointCommand.builder()
+                        .userId(command.getUserId())
+                        .amount(command.getPoint())
+                        .build()
+        );
 
         PointHistory history = PointHistory.builder()
-                .user(user)
+                .user(User.builder()
+                        .id(command.getUserId())
+                        .build())
                 .point(command.getPoint())
                 .balanceAfter(newBalance)
                 .type(command.getType())
