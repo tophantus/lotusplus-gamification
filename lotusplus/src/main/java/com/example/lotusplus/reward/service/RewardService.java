@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,29 +21,12 @@ public class RewardService {
     private final RewardQueryRepository rewardRepository;
 
     @Transactional(readOnly = true)
-    public Integer getRewardByDay(Integer day) {
+    @Cacheable(
+            cacheNames = CacheNames.REWARD_CONFIG,
+            sync = true
+    )
+    public List<RewardConfig> getRewardConfigs() {
 
-        Integer reward = getRewardMap().get(day);
-
-        if (reward == null) {
-            throw new BusinessException(
-                    ErrorCode.REWARD_CONFIG_NOT_FOUND
-            );
-        }
-
-        return reward;
+        return rewardRepository.findAll();
     }
-
-    @Transactional(readOnly = true)
-    @Cacheable(cacheNames = CacheNames.REWARD_CONFIG)
-    public Map<Integer, Integer> getRewardMap() {
-
-        return rewardRepository.findAll()
-                .stream()
-                .collect(Collectors.toMap(
-                        RewardConfig::getDayNo,
-                        RewardConfig::getReward
-                ));
-    }
-
 }
