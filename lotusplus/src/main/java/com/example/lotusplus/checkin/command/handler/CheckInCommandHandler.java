@@ -12,8 +12,7 @@ import com.example.lotusplus.point.command.dto.AwardPointCommand;
 import com.example.lotusplus.point.command.handler.AwardPointHandler;
 import com.example.lotusplus.point.enums.PointType;
 import com.example.lotusplus.reward.service.RewardService;
-import com.example.lotusplus.user.command.repository.UserCommandRepository;
-import com.example.lotusplus.user.entity.User;
+import com.example.lotusplus.user.query.handler.ValidateUserHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ public class CheckInCommandHandler {
 
     private final CheckInProperties checkInProperties;
 
-    private final UserCommandRepository userRepository;
+    private final ValidateUserHandler validateUserHandler;
 
     private final CheckInCommandRepository checkInRepository;
 
@@ -49,9 +48,7 @@ public class CheckInCommandHandler {
     )
     public CheckInResponse handle(UUID userId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new BusinessException(ErrorCode.USER_NOT_FOUND));
+        validateUserHandler.handle(userId);
 
         LocalDate today = LocalDate.now(clock);
 
@@ -87,7 +84,7 @@ public class CheckInCommandHandler {
 
         checkInRepository.save(checkIn);
 
-        awardPointHandler.handle(
+        Long totalPoint = awardPointHandler.handle(
                 AwardPointCommand.builder()
                         .userId(userId)
                         .point(reward)
@@ -101,7 +98,7 @@ public class CheckInCommandHandler {
         return CheckInResponse.builder()
                 .day(currentDay)
                 .reward(reward)
-                .totalPoint(user.getLotusPoint().intValue())
+                .totalPoint(totalPoint)
                 .build();
     }
 

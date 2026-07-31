@@ -20,6 +20,6 @@ public class CheckInResponse {
     /**
      * Tổng điểm Lotus+ sau khi check-in
      */
-    private Integer totalPoint;
+    private Long totalPoint;
 
 }
