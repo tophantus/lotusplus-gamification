@@ -1,11 +1,15 @@
 package com.example.lotusplus.checkin.query.dto;
 
 import com.example.lotusplus.checkin.enums.CheckInStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class CheckInDayStatusResponse {
 
     /**
