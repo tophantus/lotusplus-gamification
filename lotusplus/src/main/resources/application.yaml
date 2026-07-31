@@ -3,9 +3,9 @@ spring:
     name: lotusplus
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/lotusplus
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -23,15 +23,15 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
       timeout: 3000ms
 
   cache:
     type: redis
 
 redisson:
-  address: redis://localhost:6379
+  address: redis://${SPRING_DATA_REDIS_HOST}:${SPRING_DATA_REDIS_PORT}
 
 server:
   port: 8080
