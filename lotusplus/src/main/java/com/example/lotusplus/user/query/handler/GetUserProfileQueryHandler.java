@@ -1,11 +1,13 @@
 package com.example.lotusplus.user.query.handler;
 
+import com.example.lotusplus.common.cache.CacheNames;
 import com.example.lotusplus.common.exception.BusinessException;
 import com.example.lotusplus.common.exception.ErrorCode;
 import com.example.lotusplus.user.mapper.UserMapper;
 import com.example.lotusplus.user.query.dto.UserProfileResponse;
 import com.example.lotusplus.user.query.repository.UserQueryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,10 @@ public class GetUserProfileQueryHandler {
     private final UserQueryRepository userQueryRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(
+            cacheNames = CacheNames.USER_PROFILE,
+            key = "#id"
+    )
     public UserProfileResponse handle(UUID id) {
 
         return userQueryRepository.findById(id)
