@@ -4,6 +4,7 @@ import com.example.lotusplus.common.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -45,6 +46,30 @@ public class GlobalExceptionHandler {
                         ApiResponse.error(
                                 errorCode.getCode(),
                                 errorCode.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleValidationException(
+            MethodArgumentNotValidException exception
+    ) {
+
+        String message = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(fieldError ->
+                        fieldError.getField() + ": " + fieldError.getDefaultMessage()
+                )
+                .orElse("Validation failed");
+
+        return ResponseEntity
+                .badRequest()
+                .body(
+                        ApiResponse.error(
+                                ErrorCode.INVALID_REQUEST.getCode(),
+                                message
                         )
                 );
     }

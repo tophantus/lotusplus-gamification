@@ -8,7 +8,6 @@ import com.example.lotusplus.point.entity.PointHistory;
 import com.example.lotusplus.point.enums.PointType;
 import com.example.lotusplus.user.command.dto.UpdateUserPointCommand;
 import com.example.lotusplus.user.command.handler.UpdateUserPointCommandHandler;
-import com.example.lotusplus.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +34,7 @@ public class DeductPointHandler {
         );
 
         PointHistory history = PointHistory.builder()
-                .user(User.builder()
-                        .id(command.getUserId())
-                        .build())
+                .userId(command.getUserId())
                 .point(command.getPoint())
                 .balanceAfter(newBalance)
                 .type(PointType.DEDUCTION)
