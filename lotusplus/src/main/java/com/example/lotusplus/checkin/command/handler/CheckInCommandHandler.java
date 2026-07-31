@@ -80,7 +80,7 @@ public class CheckInCommandHandler {
         Integer reward = rewardService.getRewardByDay(currentDay);
 
         CheckIn checkIn = CheckIn.builder()
-                .user(user)
+                .userId(userId)
                 .checkinDate(today)
                 .reward(reward)
                 .build();

@@ -1,6 +1,5 @@
 package com.example.lotusplus.checkin.entity;
 
-import com.example.lotusplus.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,12 +31,8 @@ public class CheckIn {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "user_id",
-            nullable = false
-    )
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Column(nullable = false)
     private LocalDate checkinDate;
